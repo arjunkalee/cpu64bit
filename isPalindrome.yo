@@ -1,0 +1,45 @@
+                            | # Setup
+0x000: 30f00000000000000000 |     irmovq $0, %rax          # Initialize result to 0 (assume not a palindrome)
+0x00a: 30f20000000000000000 |     irmovq $0, %rdx          # start index
+0x014: 30f10300000000000000 |     irmovq $3, %rcx          # end index (size - 1, where size is 4)
+0x01e: 30f80100000000000000 |     irmovq $1, %r8           # constant 1 for increments
+                            | 
+                            | # Hardcoded values for array comparison
+0x028: 30fa0300000000000000 |     irmovq $3, %r10          # Simulated array element at index 0
+0x032: 30fb0400000000000000 |     irmovq $4, %r11          # Simulated array element at index 1
+0x03c: 30fc0400000000000000 |     irmovq $4, %r12          # Simulated array element at index 2
+0x046: 30fd0300000000000000 |     irmovq $3, %r13          # Simulated array element at index 3
+                            | 
+                            | # Start of loop
+0x050:                      | loop_start:
+0x050: 2029                 |     rrmovq %rdx, %r9         # Move start index to %r9 for comparison
+0x052: 6119                 |     subq %rcx, %r9           # Calculate start - end
+0x054: 758800000000000000   |     jge loop_end             # If start >= end, end loop
+                            | 
+                            |     # Compare arr[start] and arr[end] (simulated)
+                            |     # Compare first and last elements
+0x05d: 20ae                 |     rrmovq %r10, %r14        # Load first element into %r14
+0x05f: 20d9                 |     rrmovq %r13, %r9         # Load last element into %r9 (reusing %r9)
+0x061: 61e9                 |     subq %r14, %r9           # Compare values at index 0 and 3
+0x063: 749300000000000000   |     jne not_palindrome       # If not equal, jump to not_palindrome
+                            |     
+                            |     # Compare second and second last elements
+0x06c: 20be                 |     rrmovq %r11, %r14        # Load second element into %r14
+0x06e: 20c9                 |     rrmovq %r12, %r9         # Load second last element into %r9
+0x070: 61e9                 |     subq %r14, %r9           # Compare values at index 1 and 2
+0x072: 749300000000000000   |     jne not_palindrome       # If not equal, jump to not_palindrome
+                            | 
+                            |     # Increment start, decrement end
+0x07b: 6082                 |     addq %r8, %rdx           # Start++
+0x07d: 6181                 |     subq %r8, %rcx           # End--
+0x07f: 705000000000000000   |     jmp loop_start           # Repeat the loop
+                            | 
+                            | # Loop has completed without finding mismatches
+0x088:                      | loop_end:
+0x088: 30f00100000000000000 |     irmovq $1, %rax          # Set result to 1 (is a palindrome)
+0x092: 00                   |     halt                     # Finish program
+                            | 
+                            | # Not a palindrome
+0x093:                      | not_palindrome:
+0x093: 30f00000000000000000 |     irmovq $0, %rax          # Set result to 0 (not a palindrome)
+0x09d: 00                   |     halt                     # Finish program

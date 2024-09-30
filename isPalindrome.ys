@@ -1,0 +1,45 @@
+# Setup
+    irmovq $0, %rax          # Initialize result to 0 (assume not a palindrome)
+    irmovq $0, %rdx          # start index
+    irmovq $3, %rcx          # end index (size - 1, where size is 4)
+    irmovq $1, %r8           # constant 1 for increments
+
+# Hardcoded values for array comparison
+    irmovq $3, %r10          # Simulated array element at index 0
+    irmovq $4, %r11          # Simulated array element at index 1
+    irmovq $4, %r12          # Simulated array element at index 2
+    irmovq $3, %r13          # Simulated array element at index 3
+
+# Start of loop
+loop_start:
+    rrmovq %rdx, %r9         # Move start index to %r9 for comparison
+    subq %rcx, %r9           # Calculate start - end
+    jge loop_end             # If start >= end, end loop
+
+    # Compare arr[start] and arr[end] (simulated)
+    # Compare first and last elements
+    rrmovq %r10, %r14        # Load first element into %r14
+    rrmovq %r13, %r9         # Load last element into %r9 (reusing %r9)
+    subq %r14, %r9           # Compare values at index 0 and 3
+    jne not_palindrome       # If not equal, jump to not_palindrome
+    
+    # Compare second and second last elements
+    rrmovq %r11, %r14        # Load second element into %r14
+    rrmovq %r12, %r9         # Load second last element into %r9
+    subq %r14, %r9           # Compare values at index 1 and 2
+    jne not_palindrome       # If not equal, jump to not_palindrome
+
+    # Increment start, decrement end
+    addq %r8, %rdx           # Start++
+    subq %r8, %rcx           # End--
+    jmp loop_start           # Repeat the loop
+
+# Loop has completed without finding mismatches
+loop_end:
+    irmovq $1, %rax          # Set result to 1 (is a palindrome)
+    halt                     # Finish program
+
+# Not a palindrome
+not_palindrome:
+    irmovq $0, %rax          # Set result to 0 (not a palindrome)
+    halt                     # Finish program

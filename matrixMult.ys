@@ -1,0 +1,78 @@
+# Assumptions:
+# Matrix1 elements will be stored in %r8, %r9, %r10
+# Matrix2 elements will be stored in %r11, %r12, %r13
+# Result elements will be stored in %r14
+# Size is stored in %rsi
+# Index i in %rcx, j in %rdx, k in %rbx
+
+# Manual Initialization of array and size
+irmovq $1, %r8            # Matrix1[0][0] = 1
+irmovq $2, %r9            # Matrix1[0][1] = 2
+irmovq $3, %r10           # Matrix1[0][2] = 3
+irmovq $4, %r11           # Matrix1[1][0] = 4
+irmovq $5, %r12           # Matrix1[1][1] = 5
+irmovq $6, %r13           # Matrix1[1][2] = 6
+irmovq $7, %r14           # Matrix1[2][0] = 7
+irmovq $8, %rbx           # Matrix1[2][1] = 8
+irmovq $9, %rcx           # Matrix1[2][2] = 9
+
+irmovq $9, %r11           # Matrix2[0][0] = 9
+irmovq $8, %r12           # Matrix2[0][1] = 8
+irmovq $7, %r13           # Matrix2[0][2] = 7
+irmovq $6, %r14           # Matrix2[1][0] = 6
+irmovq $5, %rbx           # Matrix2[1][1] = 5
+irmovq $4, %rcx           # Matrix2[1][2] = 4
+irmovq $3, %rdx           # Matrix2[2][0] = 3
+irmovq $2, %rsi           # Matrix2[2][1] = 2
+irmovq $1, %r8            # Matrix2[2][2] = 1
+
+irmovq $3, %rsi           # Size of matrix = 3
+irmovq $0, %rcx           # Initialize index i = 0
+
+# Start of loop
+.loop_start:
+    irmovq $0, %rax
+    irmovq $0, %rdx
+
+    # Initialize sum = 0
+    irmovq $0, %r14
+
+    # Initialize index k = 0
+    irmovq $0, %rbx
+
+    # Calculate address of Matrix1[i][k]
+    irmovq $0, %rax
+    addq %rcx, %rax # i * 3
+    addq %rax, %rbx # i * 3 + k
+
+    mrmovq (%r8, %rbx, 8), %rax # Load Matrix1[i][k] into %rax
+
+    # Calculate address of Matrix2[k][j]
+    irmovq $0, %rax
+    addq %rdx, %rax # j * 3
+    addq %rax, %rdx # k * 3 + j
+
+    mrmovq (%r11, %rdx, 8), %rdi # Load Matrix2[k][j] into %rdi
+
+    # Multiply matrix1[i][k] and matrix2[k][j]
+    addq %rdi, %rax
+
+    # Add product to sum
+    addq %rax, %r14
+
+    # Increment k
+    irmovq $1, %rax
+    addq %rax, %rbx
+
+    # Increment j
+    irmovq $1, %rax
+    addq %rax, %rdx
+
+    # Check if j < 3
+    irmovq $3, %rsi
+    irmovq $0, %rax
+    subq %rdx, %rsi
+    jle .loop_start
+
+# Exit program
+halt
